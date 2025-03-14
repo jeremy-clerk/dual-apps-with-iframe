@@ -10,6 +10,12 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, req, res) => {
+  if (req.nextUrl.pathname.startsWith("/__px")) {
+    if (req.headers.get("x-middleware-rewrite")) {
+      return NextResponse.next();
+    }
+  }
+
   if (req.nextUrl.pathname.match("__px")) {
     const proxyHeaders = new Headers(req.headers);
     proxyHeaders.set(
@@ -34,13 +40,6 @@ export default clerkMiddleware(async (auth, req, res) => {
     proxyUrl.protocol = "https";
     proxyUrl.pathname = proxyUrl.pathname.replace("/__px", "");
 
-    if (proxyUrl.pathname.includes("npm/@clerk")) {
-      return NextResponse.rewrite(proxyUrl, {
-        request: {
-          headers: proxyHeaders,
-        },
-      });
-    }
     const response = await fetch(proxyUrl, {
       method: req.method,
       headers: proxyHeaders,
