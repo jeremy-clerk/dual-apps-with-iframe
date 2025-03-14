@@ -1,10 +1,11 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "globalDependencies": ["**/.env.*local"],
-  "globalPassThroughEnv": "*",
+  "globalPassThroughEnv": ["*"],
   "envMode": "loose",
   "tasks": {
     "build": {
+      "passThroughEnv": ["*"],
       "dependsOn": ["^build"],
       "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
