@@ -37,5 +37,5 @@ export default function FrameHelper() {
     };
   }, []);
 
-  return <></>;
+  return <div></div>;
 }

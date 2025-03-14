@@ -5,6 +5,7 @@ const isPublicRoute = createRouteMatcher([
   "/sign-up(.*)",
   "/intermediary(.*)",
   "/api/cross-auth(.*)",
+  "/api/webhooks(.*)",
 ]);
 
 export default clerkMiddleware(async (auth, req, res) => {
@@ -14,11 +15,19 @@ export default clerkMiddleware(async (auth, req, res) => {
     });
 });
 
-export const config = {
+/*export const config = {
   matcher: [
     // Skip Next.js internals and all static files, unless found in search params
-    "/((?!_next|[^?]*\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    // Always run for API routes, except cross-auth
-    "/(api(?!/cross-auth))(.*)",
+    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff1?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)", // Always run for API routes, except cross-auth and webhooks
+    "/((?!api/cross-auth|api/webhooks/).*)",
+  ],
+};*/
+
+export const config = {
+  matcher: [
+    // Exclude all static files and Next.js internals
+    "/((?!_next|static|.*\\.(?:js|css|map|json|ico)).*)",
+    // Only match API routes except the excluded ones
+    "/api/:path((?!cross-auth|webhooks/).)*",
   ],
 };

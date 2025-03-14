@@ -19,6 +19,8 @@ export async function POST(req: NextRequest) {
 
     const tier2UserId = auth.sessionClaims?.externalId?.toString();
 
+    console.log(tier2UserId);
+
     if (!tier2UserId) {
       return Response.json({ error: "Missing external id" });
     }
