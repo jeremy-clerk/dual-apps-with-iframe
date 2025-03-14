@@ -34,6 +34,13 @@ export default clerkMiddleware(async (auth, req, res) => {
     proxyUrl.protocol = "https";
     proxyUrl.pathname = proxyUrl.pathname.replace("/__px", "");
 
+    if (proxyUrl.pathname.includes("npm/@clerk")) {
+      return NextResponse.rewrite(proxyUrl, {
+        request: {
+          headers: proxyHeaders,
+        },
+      });
+    }
     const response = await fetch(proxyUrl, {
       method: req.method,
       headers: proxyHeaders,
