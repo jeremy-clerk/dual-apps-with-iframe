@@ -1,6 +1,7 @@
 "use client";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "@clerk/nextjs";
 
 /**
  * This is our intermediary page that determines the action to perform when redirected from middleware
@@ -9,22 +10,30 @@ import { useRouter } from "next/navigation";
  */
 export default function FrameHelper() {
   const router = useRouter();
+  const { session, isLoaded, isSignedIn } = useSession();
 
   useEffect(() => {
+    if (!isLoaded) return;
+
     try {
       // Are we in an iframe or top window context
       if (window && window.self === window.top) {
         // If we're not in an iframe - assume we're the top level context and redirect to sign-in
-        router.push("/sign-in");
+        if (!isSignedIn) router.push("/sign-in");
+        else router.push("/dashboard");
       }
       // Otherwise - we're in an iframe context and we need to sign-in - send request to the parent iframe to sign-in
-      window.parent.postMessage(
-        {
-          type: "SIGNIN",
-          message: "Not logged in",
-        },
-        process.env.NEXT_PUBLIC_TIER_ONE_ORIGIN!,
-      );
+      if (!isSignedIn) {
+        window.parent.postMessage(
+          {
+            type: "SIGNIN",
+            message: "Not logged in",
+          },
+          process.env.NEXT_PUBLIC_TIER_ONE_ORIGIN!,
+        );
+      } else {
+        router.push("/dashboard");
+      }
     } catch (e) {
       console.error(e);
     }
@@ -47,7 +56,9 @@ export default function FrameHelper() {
     return () => {
       window.removeEventListener("message", handleMessage);
     };
-  }, []);
+  }, [isLoaded]);
+
+  if (!isLoaded) return null;
 
   return <div></div>;
 }
