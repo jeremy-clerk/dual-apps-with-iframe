@@ -10,12 +10,6 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, req, res) => {
-  if (req.nextUrl.pathname.startsWith("/__px")) {
-    if (req.headers.get("x-middleware-rewrite")) {
-      return NextResponse.next();
-    }
-  }
-
   if (req.nextUrl.pathname.match("__px")) {
     const proxyHeaders = new Headers(req.headers);
     proxyHeaders.set(
@@ -84,6 +78,7 @@ export const config = {
   matcher: [
     // Exclude all static files and Next.js internals
     "/((?!_next|static|.*\\.(?:js|css|map|json|ico)).*)",
+    "/(__px)(.*)",
     // Only match API routes except the excluded ones
     "/api/:path((?!cross-auth|webhooks/).)*",
   ],
