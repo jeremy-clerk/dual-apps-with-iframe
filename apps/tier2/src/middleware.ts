@@ -32,13 +32,32 @@ export default clerkMiddleware(async (auth, req, res) => {
     proxyUrl.host = "frontend-api.clerk.dev";
     proxyUrl.port = "443";
     proxyUrl.protocol = "https";
-    proxyUrl.pathname = proxyUrl.pathname.replace("/__clerk", "");
+    proxyUrl.pathname = proxyUrl.pathname.replace("/__px", "");
 
-    return NextResponse.rewrite(proxyUrl, {
-      request: {
-        headers: proxyHeaders,
-      },
+    const response = await fetch(proxyUrl, {
+      method: req.method,
+      headers: proxyHeaders,
+      body: req.body,
     });
+
+    const newResponse = new Response(response.body, response);
+
+    const cookies = response.headers.getSetCookie();
+
+    const modifiedCookies = cookies.map((cookie) => {
+      return (
+        cookie
+          .replace(/SameSite=Lax/gi, "SameSite=None")
+          .replace(/SameSite=Strict/gi, "SameSite=None") + "; Secure"
+      );
+    });
+
+    newResponse.headers.delete("Set-Cookie");
+    modifiedCookies.forEach((cookie) => {
+      newResponse.headers.append("Set-Cookie", cookie);
+    });
+
+    return newResponse;
   }
 
   if (!isPublicRoute(req))
