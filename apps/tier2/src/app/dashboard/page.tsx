@@ -1,4 +1,5 @@
 import { UserButton } from "@clerk/nextjs";
+import Link from "next/link";
 
 export default function Dashboard() {
   return (
@@ -13,7 +14,11 @@ export default function Dashboard() {
           <h2 className="text-xl font-semibold mb-4">
             Welcome to your dashboard
           </h2>
-          <p>This is a protected page accessible only after authentication.</p>
+          <p>This is the tier 2 Application</p>
+          <div>
+            <Link href="/profile">Profile</Link>
+            <Link href="/other">Other</Link>
+          </div>
         </main>
       </div>
     </div>
