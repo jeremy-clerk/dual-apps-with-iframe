@@ -10,6 +10,7 @@ const isPublicRoute = createRouteMatcher([
 
 export default clerkMiddleware(async (auth, req, res) => {
   if (!isPublicRoute(req))
+    // If the request is signed out redirect to our intermediary page
     await auth.protect({
       unauthenticatedUrl: new URL("/intermediary", req.nextUrl).toString(),
     });

@@ -48,6 +48,9 @@ export async function POST(req: Request) {
   }
 
   const eventType = evt.type;
+  // This event is when a user is created in our Tier 1 Application
+  // We're going to link their userId from Tier 1 to the user.external_id in Tier 2
+  // Then link the userId from Tier 2 to the user.external_id in Tier 1
   if (eventType === "user.created") {
     // Get the relevant user data
     const { id, email_addresses, primary_email_address_id } = evt.data;
@@ -65,6 +68,7 @@ export async function POST(req: Request) {
       return new Response("No email or id.", { status: 200 });
     }
 
+    // Create the user in our Tier 2 app with the external_id of our Tier 1 userId
     const newUserResp = await tierTwoClerkClient.users.createUser({
       emailAddress: [primaryEmail?.email_address],
       externalId: id,
@@ -75,7 +79,7 @@ export async function POST(req: Request) {
       secretKey: process.env.TIER_ONE_CLERK_SECRET_KEY,
       publishableKey: process.env.TIER_ONE_CLERK_PUBLISHABLE_KEY,
     });
-
+    // Update our Tier 1 user to have the external_id of our Tier 2 application
     await tierOneClerkClient.users.updateUser(id, {
       externalId: newUserResp.id,
     });
